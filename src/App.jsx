@@ -1,7 +1,7 @@
-import Counter from './components/state/Counter';
-import Login from './components/state/login';
-import Signup from './components/state/Signup';
-import VerifyOtp from './components/state/OtpVerification';
+import Counter from './components/Counter';
+import Login from './components/login';
+import Signup from './components/Signup';
+import VerifyOtp from './components/OtpVerification';
 import {BrowserRouter,Routes,Route} from "react-router-dom"
 
 function App() {
