@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const User = require("../models/userSchema");
 const PendingUser = require("../models/pendingUserSchema");
-
+const bcrypt = require("bcryptjs");
 
 // Utility: send email
 const sendOtpEmail = async (email, otp) => {
@@ -14,7 +14,7 @@ const sendOtpEmail = async (email, otp) => {
   });
 
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: `"Verify Otp" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Your OTP Code",
     text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
@@ -30,13 +30,14 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
    
     const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
 
     const pendingUser = new PendingUser({
       name,
       email,
-      password,
+      password: hashedPassword,
       otp,
     });
 
@@ -62,7 +63,8 @@ const login = async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    if (existingUser.password !== password) {
+    const isPasswordValid = await bcrypt.compare(password, existingUser.password);
+    if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid password" });
     }
 
